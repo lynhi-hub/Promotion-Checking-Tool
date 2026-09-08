@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Tra cứu Thủ tục &amp; Chứng từ CTKM — NLS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF9F3;
+    --paper-deep:#F1ECDD;
+    --line:#DED7C4;
+    --ink:#1C231F;
+    --ink-soft:#5B6259;
+    --pine:#24503B;
+    --pine-deep:#16352A;
+    --pine-pale:#E4ECE4;
+    --stamp:#A23B2C;
+    --brass:#8C6A22;
+    --brass-pale:#F1E7C8;
+    --radius-s:6px;
+    --radius-m:11px;
+    --radius-l:18px;
+    --shadow-card:0 1px 2px rgba(28,35,31,.05), 0 10px 26px -14px rgba(28,35,31,.28);
+    --font-display:'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --font-body:'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    --font-mono:'IBM Plex Mono', 'SFMono-Regular', Consolas, 'Courier New', monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background-color:var(--paper);
+    background-image:repeating-linear-gradient(to bottom, rgba(36,80,59,.04) 0, rgba(36,80,59,.04) 1px, transparent 1px, transparent 27px);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:var(--font-display);font-weight:600;margin:0;color:var(--pine-deep);}
+  p{margin:0;}
+  button{font-family:inherit;}
+  ul{margin:0;padding:0;}
+
+  .hero{position:relative;background:linear-gradient(155deg, var(--pine) 0%, var(--pine-deep) 100%);color:var(--paper);padding:44px 24px 52px;overflow:hidden;}
+  .hero-inner{max-width:800px;margin:0 auto;position:relative;z-index:1;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-pale);margin-bottom:14px;}
+  .hero h1{font-size:clamp(26px,4vw,36px);color:var(--paper);line-height:1.18;margin-bottom:12px;max-width:20ch;}
+  .hero .lede{max-width:54ch;color:rgba(251,249,243,.84);font-size:15.5px;line-height:1.65;}
+
+  .seal{position:absolute;top:20px;right:30px;width:112px;height:112px;color:var(--stamp);opacity:.95;transform:rotate(-9deg);mix-blend-mode:multiply;}
+  @media (max-width:760px){.seal{display:none;}}
+
+  main{max-width:800px;margin:-28px auto 56px;padding:0 20px;position:relative;z-index:2;}
+
+  .panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-l);box-shadow:var(--shadow-card);padding:28px 28px 30px;margin-bottom:20px;}
+
+  .step-label{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+  .step-num{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--pine);background:var(--pine-pale);border-radius:50%;width:30px;height:30px;display:grid;place-items:center;flex:0 0 auto;}
+  .step-label h2{font-size:20px;}
+  .hint{color:var(--ink-soft);font-size:14.5px;margin:6px 0 16px;max-width:64ch;}
+
+  .step-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:2px;}
+  .quick-links{display:flex;gap:16px;}
+  .quick-links button{background:none;border:none;color:var(--pine);font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:2px 0;}
+
+  .choice-row,.choice-grid{display:grid;gap:12px;margin-top:6px;}
+  .choice-row{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));}
+  .choice-grid{grid-template-columns:repeat(auto-fit,minmax(250px,1fr));}
+
+  .choice-card{position:relative;display:flex;align-items:flex-start;gap:11px;border:1.5px solid var(--line);border-radius:var(--radius-m);background:var(--paper);padding:13px 15px;cursor:pointer;transition:border-color .15s ease,background-color .15s ease;}
+  .choice-card:hover{border-color:var(--pine);}
+  .choice-card input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;}
+  .choice-mark{flex:0 0 auto;width:19px;height:19px;margin-top:2px;border:2px solid var(--ink-soft);display:grid;place-items:center;transition:all .15s ease;color:var(--paper);font-size:12px;font-weight:700;}
+  .choice-mark--radio{border-radius:50%;}
+  .choice-mark--check{border-radius:5px;}
+  .choice-card.is-checked{border-color:var(--pine);background:var(--pine-pale);}
+  .choice-card.is-checked .choice-mark{background:var(--pine);border-color:var(--pine);}
+  .choice-card.is-checked .choice-mark--radio::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--paper);}
+  .choice-card.is-checked .choice-mark--check::after{content:"✓";line-height:1;}
+  .choice-card input:focus-visible ~ .choice-mark{outline:2px solid var(--brass);outline-offset:2px;}
+  .choice-text strong{display:block;font-size:14.5px;font-weight:600;color:var(--ink);}
+  .choice-text small{display:block;font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+
+  .field-error{color:var(--stamp);font-size:13.5px;margin-top:12px;}
+  .shake{animation:shake .4s ease;}
+  @keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
+
+  .actions-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:24px 4px 40px;}
+  .btn-primary,.btn-ghost{font-size:14.5px;font-weight:600;border-radius:999px;cursor:pointer;padding:12px 26px;transition:all .15s ease;display:inline-flex;align-items:center;gap:8px;}
+  .btn-primary{background:var(--pine);color:var(--paper);border:1.5px solid var(--pine);}
+  .btn-primary:hover{background:var(--pine-deep);border-color:var(--pine-deep);}
+  .btn-ghost{background:transparent;color:var(--pine);border:1.5px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--pine);}
+  .btn-ghost svg{width:15px;height:15px;}
+  .selected-count{font-size:13px;color:var(--ink-soft);font-family:var(--font-mono);margin-left:auto;}
+
+  .results-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+  .results-header h2{font-size:22px;}
+  .edit-link{background:none;border:none;color:var(--pine);cursor:pointer;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:2px;padding:2px 0;margin-top:6px;}
+  .results-meta{font-size:13.5px;color:var(--ink-soft);margin-top:6px;}
+
+  .result-block{padding:20px 0;border-top:1px dashed var(--line);}
+  .result-block:first-of-type{border-top:none;padding-top:0;}
+  .result-block h3{font-size:16.5px;display:flex;align-items:center;gap:8px;}
+  .result-block h3 svg{width:19px;height:19px;color:var(--pine);flex:0 0 auto;}
+  .result-block-header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+
+  .stamp-badge{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--stamp);border-radius:5px;padding:3px 9px;box-shadow:inset 0 0 0 1.5px var(--stamp);background:rgba(162,59,44,.05);transform:rotate(-3deg);display:inline-block;}
+
+  .proc-list{list-style:none;margin:14px 0 0;display:flex;flex-direction:column;gap:12px;}
+  .proc-list li{position:relative;padding-left:20px;font-size:14.5px;line-height:1.65;}
+  .proc-list li::before{content:"";position:absolute;left:1px;top:.5em;width:7px;height:7px;background:var(--pine);transform:rotate(45deg);}
+  .proc-list li.empty{color:var(--ink-soft);font-style:italic;padding-left:0;}
+  .proc-list li.empty::before{display:none;}
+
+  .checklist-progress{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);margin:12px 0 4px;}
+  .doc-checklist{list-style:none;margin:0;}
+  .doc-item{border-bottom:1px solid var(--line);}
+  .doc-item:last-child{border-bottom:none;}
+  .doc-item label{display:flex;align-items:flex-start;gap:11px;padding:11px 2px;cursor:pointer;}
+  .doc-item input{position:absolute;opacity:0;width:1px;height:1px;}
+  .doc-check{flex:0 0 auto;width:18px;height:18px;margin-top:1px;border-radius:5px;border:2px solid var(--ink-soft);display:grid;place-items:center;color:var(--paper);font-size:11px;transition:all .15s ease;}
+  .doc-item input:checked ~ .doc-check{background:var(--pine);border-color:var(--pine);}
+  .doc-item input:checked ~ .doc-check::after{content:"✓";}
+  .doc-item input:focus-visible ~ .doc-check{outline:2px solid var(--brass);outline-offset:2px;}
+  .doc-text{font-size:14.5px;line-height:1.5;}
+  .doc-item.is-done .doc-text{color:var(--ink-soft);text-decoration:line-through;}
+  .doc-checklist li.empty{color:var(--ink-soft);font-style:italic;padding:8px 2px;list-style:none;}
+
+  .breakdown{margin-top:6px;}
+  .breakdown summary{cursor:pointer;font-weight:600;color:var(--pine);font-size:14.5px;padding:8px 0;list-style:none;}
+  .breakdown summary::-webkit-details-marker{display:none;}
+  .breakdown summary::before{content:"▸ ";}
+  .breakdown[open] summary::before{content:"▾ ";}
+  .breakdown-item{padding:16px 0;border-top:1px solid var(--line);}
+  .breakdown-title{font-family:var(--font-display);font-weight:600;font-size:16px;}
+  .breakdown-label{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin:12px 0 4px;}
+  .breakdown-proc{font-size:14px;line-height:1.6;}
+  .breakdown-docs{margin:4px 0 0;padding-left:18px;font-size:14px;line-height:1.7;}
+  .breakdown-none{font-size:13.5px;color:var(--ink-soft);font-style:italic;}
+  .invoice-guide{display:flex;flex-direction:column;gap:8px;}
+  .invoice-row{display:flex;flex-direction:column;gap:2px;padding:8px 10px;background:var(--paper-deep);border-radius:var(--radius-s);border:1px solid var(--line);}
+  .invoice-label{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--brass);font-weight:600;}
+  .invoice-value{font-size:13.5px;line-height:1.6;color:var(--ink);}
+
+  .disclaimer{padding:12px 6px 0;font-size:12.5px;color:var(--ink-soft);line-height:1.6;}
+
+  :focus-visible{outline:2px solid var(--brass);outline-offset:2px;}
+
+  @media (max-width:560px){
+    .hero{padding:34px 18px 64px;}
+    .panel{padding:22px 18px 24px;}
+    .actions-row{flex-direction:column;align-items:stretch;}
+    .selected-count{margin-left:0;text-align:center;order:3;}
+    .btn-primary,.btn-ghost{width:100%;justify-content:center;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important;transition:none !important;}
+    html{scroll-behavior:auto;}
+  }
+
+  @media print{
+    body{background:none;}
+    .hero{background:none;color:var(--ink);padding:0 0 16px;border-bottom:2px solid var(--ink);}
+    .hero h1,.hero .lede,.eyebrow{color:var(--ink) !important;}
+    .seal{display:none;}
+    main{margin-top:16px;}
+    #checkForm,.btn-ghost,.quick-links,.edit-link{display:none !important;}
+    .panel{box-shadow:none;border:1px solid #999;break-inside:avoid;}
+    .breakdown-item{break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Công cụ nội bộ · Tra cứu CTKM</div>
+      <h1>Tra cứu Thủ tục &amp; Chứng từ CTKM</h1>
+      <p class="lede">Chọn nhóm hàng hóa, dịch vụ áp dụng và hình thức khuyến mại để xem ngay thủ tục cần tuân thủ cùng danh mục chứng từ phải chuẩn bị.</p>
+    </div>
+    <svg class="seal" viewBox="0 0 220 220" aria-hidden="true">
+      <circle cx="110" cy="110" r="98" fill="none" stroke="currentColor" stroke-width="4"/>
+      <circle cx="110" cy="110" r="86" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <polygon points="110,50 116,66 134,72 116,78 110,96 104,78 86,72 104,66" fill="currentColor"/>
+      <line x1="58" y1="110" x2="78" y2="110" stroke="currentColor" stroke-width="2"/>
+      <line x1="142" y1="110" x2="162" y2="110" stroke="currentColor" stroke-width="2"/>
+      <text x="110" y="140" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="15" font-weight="700" letter-spacing="1" fill="currentColor">CHECKING</text>
+      <text x="110" y="159" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="15" font-weight="700" letter-spacing="1" fill="currentColor">TOOL</text>
+    </svg>
+  </header>
+
+  <main>
+    <form id="checkForm" novalidate>
+      <section class="panel">
+        <div class="step-label"><span class="step-num">01</span><h2>Nhóm hàng hóa, dịch vụ áp dụng</h2></div>
+        <p class="hint">Rượu (bất kể nồng độ cồn), bia có nồng độ cồn từ 15 độ trở lên, thuốc lá, sữa thay thế sữa mẹ, thuốc kê đơn (không bán cho đơn vị kinh doanh thuốc), dịch vụ y tế/giáo dục của cơ sở công lập, và hàng hóa cấm lưu hành tại Việt Nam đều thuộc nhóm hạn chế, chịu thủ tục riêng. Chọn đúng nhóm áp dụng cho chương trình — điều này quyết định thủ tục và chứng từ áp dụng.</p>
+        <div class="choice-row" id="abvGroup" role="radiogroup" aria-label="Nhóm hàng hóa, dịch vụ áp dụng"></div>
+        <p class="field-error" id="abvError" hidden>Vui lòng chọn nhóm hàng hóa, dịch vụ trước khi tra cứu.</p>
+      </section>
+
+      <section class="panel">
+        <div class="step-label"><span class="step-num">02</span><h2>Hình thức CTKM</h2></div>
+        <div class="step-actions">
+          <p class="hint" style="margin:0;">Có thể chọn nhiều hình thức nếu chương trình kết hợp nhiều hoạt động.</p>
+          <div class="quick-links">
+            <button type="button" id="selectAll">Chọn tất cả</button>
+            <button type="button" id="selectNone">Bỏ chọn</button>
+          </div>
+        </div>
+        <div class="choice-grid" id="eventGrid" style="margin-top:16px;"></div>
+      </section>
+
+      <div class="actions-row">
+        <button type="submit" class="btn-primary">Tra cứu kết quả</button>
+        <button type="button" class="btn-ghost" id="resetBtn">Đặt lại</button>
+        <span class="selected-count" id="selectedCount">Đã chọn 0/9 hình thức</span>
+      </div>
+    </form>
+
+    <section class="panel results" id="resultsPanel" hidden aria-live="polite">
+      <div class="results-header">
+        <div>
+          <h2>Kết quả tra cứu</h2>
+          <p class="results-meta" id="resultsMeta"></p>
+          <button type="button" class="edit-link" id="editLink">← Chỉnh sửa lựa chọn</button>
+        </div>
+        <button type="button" class="btn-ghost" id="printBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="1.5"/><path d="M6 17v4h12v-4"/></svg>
+          In / Lưu PDF
+        </button>
+      </div>
+
+      <div class="result-block">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v5h5"/><path d="m9 14 2 2 4-4"/></svg>
+          Thủ tục / Lưu ý cần tuân thủ
+        </h3>
+        <ul class="proc-list" id="thuTucList"></ul>
+      </div>
+
+      <div class="result-block">
+        <div class="result-block-header">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>
+            Chứng từ / Hồ sơ cần chuẩn bị
+          </h3>
+          <span class="stamp-badge">Bắt buộc</span>
+        </div>
+        <p class="checklist-progress" id="checklistProgress"></p>
+        <ul class="doc-checklist" id="hosoList"></ul>
+      </div>
+
+      <details class="breakdown" id="breakdownDetails">
+        <summary>Xem chi tiết theo từng hình thức CTKM đã chọn</summary>
+        <div id="breakdownContent"></div>
+      </details>
+
+      <details class="breakdown" id="invoiceDetails">
+        <summary>Hướng dẫn xuất hóa đơn theo từng hình thức</summary>
+        <div id="invoiceContent"></div>
+      </details>
+    </section>
+
+    <p class="disclaimer">Công cụ được thiết lập dựa trên nền tảng kiến thức và kinh nghiệm của tác giả - Lyn, cũng như pháp luật hiện hành tại thời điểm thiết lập công cụ. Vui lòng đối chiếu và cân nhắc với tình huống thực tế khi sử dụng.</p>
+  </main>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ DATA — ported 1:1 from StatusDB / HosoDB + Checkbox userform (VBA) ============ */
+
+  var EVENTS = [
+    { id:"hangmau", code:"Hang mau", name:"Hàng mẫu" },
+    { id:"tanghang", code:"Tang hang hoa/dich vu", name:"Tặng hàng hóa/dịch vụ" },
+    { id:"giamgia", code:"Giam gia", name:"Giảm giá" },
+    { id:"tangphieu", code:"Tang Phieu mua hang", name:"Tặng phiếu mua hàng" },
+    { id:"traothuong", code:"Trao thuong thi", name:"Trao thưởng dựa trên hình thức thi" },
+    { id:"mayrui", code:"Chuong trinh may rui", name:"Chương trình may rủi" },
+    { id:"khachthuongxuyen", code:"Khach hang thuong xuyen", name:"Khách hàng thường xuyên" },
+    { id:"khuyenmaidt", code:"Khuyen mai dien tu", name:"Khuyến mại điện tử" },
+    { id:"moinghesi", code:"Nghe si bieu dien", name:"Mời nghệ sĩ biểu diễn" }
+  ];
+
+  var STATUS_DB = {
+    "Hang mau": {
+      qualified:"Không yêu cầu thủ tục",
+      unqualified:"Không yêu cầu thủ tục\nTồn tại chi phí rủi ro về pháp lý và thuế khi thực hiện"
+    },
+    "Tang hang hoa/dich vu": {
+      qualified:"Không yêu cầu thủ tục",
+      unqualified:"Không yêu cầu thủ tục\nTồn tại chi phí rủi ro về pháp lý và thuế khi thực hiện"
+    },
+    "Giam gia": {
+      qualified:"Không yêu cầu thủ tục",
+      unqualified:"Không yêu cầu thủ tục\nTồn tại chi phí rủi ro về pháp lý và thuế khi thực hiện"
+    },
+    "Tang Phieu mua hang": {
+      qualified:"Không yêu cầu thủ tục",
+      unqualified:"Không yêu cầu thủ tục\nTồn tại chi phí rủi ro về pháp lý và thuế khi thực hiện"
+    },
+    "Trao thuong thi": {
+      qualified:"Thông báo với Sở Công thương tối thiểu trước ba (03) ngày nếu tổng giá trị giải thưởng cuộc thi từ 100 triệu VNĐ trở lên.",
+      unqualified:"Thông báo với Sở Công thương tối thiểu trước ba (03) ngày nếu tổng giá trị giải thưởng cuộc thi từ 100 triệu VNĐ trở lên. Lưu ý: Trong trường hợp vẫn chạy chương trình này, dù thực hiện thủ tục hay không vẫn tồn tại chi phí rủi ro về pháp lý và thuế khi thực hiện"
+    },
+    "Chuong trinh may rui": {
+      qualified:"Đăng ký với Sở Công thương\nNếu không có người trúng thưởng phải nộp 50% giá trị giải thưởng cho NSNN trong thời hạn 45 ngày kể từ khi nhận được quyết định thu nộp của cơ quan quản lý nhà nước (trừ trường hợp giải thưởng trao quá thời điểm kết thúc thời hạn trao thưởng do sự kiện bất khả kháng hoặc do trở ngại khách quan theo quy định của pháp luật)\nBáo cáo kết quả thực hiện chương trình khuyến mại trong vòng 45 ngày sau khi kết thúc chương trình",
+      unqualified:"Đăng ký với Sở Công thương\nNếu không có người trúng thưởng phải nộp 50% giá trị giải thưởng cho NSNN trong thời hạn 45 ngày kể từ khi nhận được quyết định thu nộp của cơ quan quản lý nhà nước (trừ trường hợp giải thưởng trao quá thời điểm kết thúc thời hạn trao thưởng do sự kiện bất khả kháng hoặc do trở ngại khách quan theo quy định của pháp luật)\nBáo cáo kết quả thực hiện chương trình khuyến mại trong vòng 45 ngày sau khi kết thúc chương trình\nLưu ý: Trong trường hợp vẫn chạy chương trình này, dù thực hiện thủ tục hay không vẫn tồn tại chi phí rủi ro về pháp lý và thuế khi thực hiện"
+    },
+    "Khach hang thuong xuyen": {
+      qualified:"Không yêu cầu thủ tục",
+      unqualified:"Không yêu cầu thủ tục\nTồn tại chi phí rủi ro về pháp lý và thuế khi thực hiện"
+    },
+    "Khuyen mai dien tu": {
+      qualified:"Không yêu cầu thủ tục",
+      unqualified:"Không yêu cầu thủ tục\nTồn tại chi phí rủi ro về pháp lý và thuế khi thực hiện"
+    },
+    "Nghe si bieu dien": {
+      qualified:"Thông báo (với chương trình không bán vé)/ Đăng ký (với chương trình bán vé) với cơ quan thẩm quyền (UBND các cấp/Bộ Văn hóa, Thể thao và Du lịch tùy thuộc loại hình/quy mô chương trình)",
+      unqualified:"Thông báo (với chương trình không bán vé)/ Đăng ký (với chương trình bán vé) với cơ quan thẩm quyền (UBND các cấp/Bộ Văn hóa, Thể thao và Du lịch tùy thuộc loại hình/quy mô chương trình)"
+    }
+  };
+
+  var HOSO_DB = [
+    { doc:"Thông báo thực hiện chương trình khuyến mại được Giám đốc ký duyệt (ghi rõ thời gian áp dụng khuyến mại)",
+      codes:["Hang mau","Tang hang hoa/dich vu","Giam gia","Tang Phieu mua hang","Trao thuong thi","Chuong trinh may rui","Khach hang thuong xuyen","Khuyen mai dien tu","Nghe si bieu dien"], yes:"Compulsory", no:"Compulsory" },
+    { doc:"Proposal chi tiết chương trình đã được phê duyệt",
+      codes:["Hang mau","Tang hang hoa/dich vu","Giam gia","Tang Phieu mua hang","Trao thuong thi","Chuong trinh may rui","Khach hang thuong xuyen","Khuyen mai dien tu","Nghe si bieu dien"], yes:"Compulsory", no:"Compulsory" },
+    { doc:"Bảng dự trù ngân sách và phê duyệt ngân sách thực hiện chương trình",
+      codes:["Hang mau","Tang hang hoa/dich vu","Giam gia","Tang Phieu mua hang","Trao thuong thi","Chuong trinh may rui","Khach hang thuong xuyen","Khuyen mai dien tu","Nghe si bieu dien"], yes:"Compulsory", no:"Compulsory" },
+    { doc:"Bảng quyết toán chương trình (kèm theo hình ảnh nghiệm thu chương trình)",
+      codes:["Hang mau","Tang hang hoa/dich vu","Giam gia","Tang Phieu mua hang","Trao thuong thi","Chuong trinh may rui","Khach hang thuong xuyen","Khuyen mai dien tu","Nghe si bieu dien"], yes:"Compulsory", no:"Compulsory" },
+    { doc:"Bộ chứng từ chuẩn theo quy trình thanh toán",
+      codes:["Hang mau","Tang hang hoa/dich vu","Giam gia","Tang Phieu mua hang","Trao thuong thi","Chuong trinh may rui","Khach hang thuong xuyen","Khuyen mai dien tu","Nghe si bieu dien"], yes:"Compulsory", no:"Compulsory" },
+    { doc:"Danh sách các khách được nhận quà tặng",
+      codes:["Hang mau","Tang hang hoa/dich vu","Trao thuong thi","Chuong trinh may rui"], yes:"Compulsory", no:"Compulsory" },
+    { doc:"Hồ sơ đăng ký chương trình tới Sở Công thương kèm theo xác nhận gửi thông báo online hoặc qua bưu điện",
+      codes:["Chuong trinh may rui"], yes:"N/A", no:"Compulsory" },
+    { doc:"Chấp thuận đăng ký thành công của Sở Công thương",
+      codes:["Chuong trinh may rui"], yes:"N/A", no:"Compulsory" },
+    { doc:"Báo cáo kết quả thực hiện chương trình khuyến mại nộp cho Sở Công thương",
+      codes:["Chuong trinh may rui"], yes:"N/A", no:"Compulsory" },
+    { doc:"Hồ sơ thông báo/ đăng ký cấp phép biểu diễn",
+      codes:["Nghe si bieu dien"], yes:"Compulsory", no:"Compulsory" },
+    { doc:"Giấy phép biểu diễn cho nghệ sĩ (trong trường hợp cần đăng ký cấp phép)",
+      codes:["Nghe si bieu dien"], yes:"Compulsory", no:"Compulsory" },
+    { doc:"Hồ sơ kê khai thuế TNCN cho cá nhân trúng thưởng nếu giá trị giải thưởng cho mỗi cá nhân từ 20 triệu VNĐ",
+      codes:["Trao thuong thi","Chuong trinh may rui"], yes:"Compulsory", no:"Compulsory" }
+  ];
+
+  var XHD_DB = {
+    "Hang mau": {
+      khac: { buyerInfo:"- Điền thông tin khách nhận hàng mẫu, trong trường hợp khách nhận quà tặng không đồng ý cung cấp thông tin thì để trường dữ liệu Tên khách hàng là \"Bán cho người tiêu dùng\"", explanation:"- Diễn giải ngoài liệt kê  danh sách hàng hóa dịch vụ tặng thì ghi rõ \"Hàng mẫu không thu tiền\"", discount:0, preTaxValue:0, taxRate:"- Thuế suất thuế GTGT của hàng mẫu tương ứng bình thường" },
+      hanche: { buyerInfo:"- Điền thông tin khách nhận hàng mẫu, trong trường hợp khách nhận quà tặng không đồng ý cung cấp thông tin thì để trường dữ liệu Tên khách hàng là \"Bán cho người tiêu dùng\"", explanation:"- Diễn giải ngoài liệt kê  danh sách hàng hóa dịch vụ tặng thì ghi rõ \"Hàng mẫu không thu tiền\"", discount:0, preTaxValue:"Giá chưa thuế của hàng mẫu nếu bán", taxRate:"- Thuế suất thuế GTGT của hàng mẫu tương ứng bình thường" }
+    },
+    "Tang hang hoa/dich vu": {
+      khac: { buyerInfo:"- Điền thông tin khách nhận hàng tặng, trong trường hợp khách nhận quà tặng không đồng ý cung cấp thông tin thì để trường dữ liệu Tên khách hàng là \"Bán cho người tiêu dùng\"", explanation:"- Diễn giải ngoài liệt kê  danh sách hàng hóa dịch vụ tặng thì ghi rõ \"Hàng tặng khuyến mại không thu tiền\"", discount:0, preTaxValue:0, taxRate:"- Thuế suất thuế GTGT của hàng khuyến mại" },
+      hanche: { buyerInfo:"- Điền thông tin khách nhận hàng tặng, trong trường hợp khách nhận quà tặng không đồng ý cung cấp thông tin thì để trường dữ liệu Tên khách hàng là \"Bán cho người tiêu dùng\"", explanation:"- Diễn giải ngoài liệt kê  danh sách hàng hóa dịch vụ tặng thì ghi rõ \"Hàng tặng khuyến mại không thu tiền\"", discount:0, preTaxValue:"Giá chưa thuế của hàng tặng nếu bán bình thường", taxRate:"- Thuế suất thuế GTGT của hàng khuyến mại" }
+    },
+    "Giam gia": {
+      khac: { buyerInfo:"- Điền thông tin khách hàng như bán hàng thông thường", explanation:"- Ghi rõ tên hàng hóa như hóa đơn bình thường", discount:"- Điền mức/số tiền chiết khấu giảm giá của CTKM", preTaxValue:"- Trị giá chưa thuế của hàng hóa sau khi trừ đi phần giảm giá", taxRate:"- Thuế suất thuế GTGT của hàng khuyến mại" },
+      hanche: { buyerInfo:"- Điền thông tin khách hàng như bán hàng thông thường", explanation:"- Ghi rõ tên hàng hóa như hóa đơn bình thường", discount:0, preTaxValue:"Giá chưa thuế của hàng tặng nếu bán bình thường (không trừ chiết khấu)", taxRate:"- Thuế suất thuế GTGT của hàng khuyến mại" }
+    },
+    "Tang Phieu mua hang": {
+      khac: { buyerInfo:"1. Khi tặng voucher: Không xuất hóa đơn GTGT, chỉ xuất phiếu chi\n2. Khi khách sử dụng voucher: Lập hóa đơn và tính thuế GTGT theo quy định\nLưu ý: khoản thanh toán do khách hàng sử dụng phiếu voucher chỉ giảm trừ trên dòng tiền thanh toán, khôn giảm trừ trên hóa đơn xuất", explanation:null, discount:null, preTaxValue:null, taxRate:null },
+      hanche: { buyerInfo:"1. Khi tặng voucher: Không xuất hóa đơn GTGT, chỉ xuất phiếu chi\n2. Khi khách sử dụng voucher: Lập hóa đơn và tính thuế GTGT theo quy định\nLưu ý: khoản thanh toán do khách hàng sử dụng phiếu voucher chỉ giảm trừ trên dòng tiền thanh toán, khôn giảm trừ trên hóa đơn xuất", explanation:null, discount:null, preTaxValue:null, taxRate:null }
+    },
+    "Trao thuong thi": {
+      khac: { buyerInfo:"- Điền thông tin cụ thể của cá nhân nhận thưởng.\nTrong trường hợp khách hàng không muốn tiết lộ cá nhân, để là \"Bán cho người tiêu dùng\". Trong trường hợp xấu nhất chấp nhận rủi ro phạt vi phạm hành chính về xuất hóa đơn sai.", explanation:"- Diễn giải ngoài liệt kê  danh sách hàng hóa dịch vụ tặng thì ghi rõ \"Hàng tặng khuyến mại không thu tiền\"", discount:0, preTaxValue:0, taxRate:"- Thuế suất thuế GTGT của hàng khuyến mại" },
+      hanche: { buyerInfo:"- Điền thông tin cụ thể của cá nhân nhận thưởng.\nTrong trường hợp khách hàng không muốn tiết lộ cá nhân, để là \"Bán cho người tiêu dùng\". Trong trường hợp xấu nhất chấp nhận rủi ro phạt vi phạm hành chính về xuất hóa đơn sai.", explanation:"- Diễn giải ngoài liệt kê  danh sách hàng hóa dịch vụ tặng thì ghi rõ \"Hàng tặng khuyến mại không thu tiền\"", discount:0, preTaxValue:"Giá chưa thuế của hàng tặng nếu bán bình thường", taxRate:"- Thuế suất thuế GTGT của hàng khuyến mại" }
+    },
+    "Chuong trinh may rui": {
+      khac: { buyerInfo:"- Điền thông tin cụ thể của cá nhân nhận thưởng.\nTrong trường hợp khách hàng không muốn tiết lộ cá nhân, để diễn giải là \"Bán cho người tiêu dùng\" và chấp nhận rủi ro phạt vi phạm hành chính về xuất hóa đơn sai", explanation:"- Diễn giải ngoài liệt kê  danh sách hàng hóa dịch vụ tặng thì ghi rõ \"Hàng tặng khuyến mại không thu tiền\"", discount:0, preTaxValue:0, taxRate:"- Thuế suất thuế GTGT của hàng khuyến mại" },
+      hanche: { buyerInfo:"- Điền thông tin cụ thể của cá nhân nhận thưởng.\nTrong trường hợp khách hàng không muốn tiết lộ cá nhân, để diễn giải là \"Bán cho người tiêu dùng\" và chấp nhận rủi ro phạt vi phạm hành chính về xuất hóa đơn sai", explanation:"- Diễn giải ngoài liệt kê  danh sách hàng hóa dịch vụ tặng thì ghi rõ \"Hàng tặng khuyến mại không thu tiền\"", discount:0, preTaxValue:"Giá chưa thuế của hàng tặng nếu bán bình thường", taxRate:"- Thuế suất thuế GTGT của hàng khuyến mại" }
+    },
+    "Khach hang thuong xuyen": {
+      khac: { buyerInfo:"- Điền thông tin của khách hàng", explanation:"Trên hóa đơn thể hiện:\n- Số điểm tích lũy;\n- Số điểm sử dụng mỗi lần mua hàng", discount:"- Số tiền chiết khấu giảm  quy đổi từ điểm sử dụng cho hóa đơn này", preTaxValue:"Giá đã trừ số điểm sử dụng", taxRate:"- Thuế suất thuế GTGT của hàng trên hóa đơn" },
+      hanche: { buyerInfo:"- Điền thông tin của khách hàng", explanation:"Trên hóa đơn thể hiện:\n- Số điểm tích lũy;\n- Số điểm sử dụng mỗi lần mua hàng", discount:"- Số tiền chiết khấu giảm  quy đổi từ điểm sử dụng cho hóa đơn này", preTaxValue:"Giá đã trừ số điểm sử dụng", taxRate:"- Thuế suất thuế GTGT của hàng trên hóa đơn" }
+    },
+    "Khuyen mai dien tu": {
+      khac: { buyerInfo:"Tùy theo hình thức khuyến mại và thỏa thuận với sàn", explanation:null, discount:null, preTaxValue:null, taxRate:null },
+      hanche: { buyerInfo:"Tùy theo hình thức khuyến mại và thỏa thuận với sàn", explanation:null, discount:null, preTaxValue:null, taxRate:null }
+    },
+    "Nghe si bieu dien": {
+      khac: { buyerInfo:"Không nằm trong phạm vi điều chỉnh", explanation:null, discount:null, preTaxValue:null, taxRate:null },
+      hanche: { buyerInfo:"Không nằm trong phạm vi điều chỉnh", explanation:null, discount:null, preTaxValue:null, taxRate:null }
+    }
+  };
+
+  /* ============ helpers ============ */
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(s){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s];
+    });
+  }
+  function nl2br(str){ return escapeHtml(str).replace(/\n/g,'<br>'); }
+  function isCompulsory(v){ return String(v||'').trim().toLowerCase() === 'compulsory'; }
+  function nameOf(code){ var e = EVENTS.filter(function(x){return x.code===code;})[0]; return e ? e.name : code; }
+
+  var INVOICE_FIELD_LABELS = [
+    ['buyerInfo', 'Thông tin người mua trên hóa đơn'],
+    ['explanation', 'Diễn giải'],
+    ['discount', 'Chiết khấu'],
+    ['preTaxValue', 'Trị giá hàng hóa chưa thuế'],
+    ['taxRate', 'Thuế suất']
+  ];
+  function renderInvoiceFields(inv){
+    if (!inv) return '';
+    var rows = INVOICE_FIELD_LABELS.map(function(pair){
+      var val = inv[pair[0]];
+      if (val === null || val === undefined || val === '') return '';
+      return '<div class="invoice-row"><span class="invoice-label">' + escapeHtml(pair[1]) + '</span><span class="invoice-value">' + nl2br(String(val)) + '</span></div>';
+    }).join('');
+    return rows || '<p class="breakdown-none">Chưa có hướng dẫn xuất hóa đơn riêng cho hình thức này.</p>';
+  }
+
+  /* ============ core logic — mirrors cmdKetQua_Click exactly ============ */
+
+  function compute(isYes, selectedCodes){
+    var seenProc = {};
+    var procList = [];
+    var perEvent = [];
+
+    selectedCodes.forEach(function(code){
+      var st = STATUS_DB[code];
+      var text = st ? (isYes ? st.unqualified : st.qualified) : null;
+      if (text && !seenProc[text]) { seenProc[text] = true; procList.push(text); }
+
+      var docs = HOSO_DB.filter(function(row){
+        return row.codes.indexOf(code) !== -1 && isCompulsory(isYes ? row.yes : row.no);
+      }).map(function(row){ return row.doc; });
+
+      var invSet = XHD_DB[code];
+      var invoice = invSet ? (isYes ? invSet.hanche : invSet.khac) : null;
+
+      perEvent.push({ code:code, name:nameOf(code), proc:text, docs:docs, invoice:invoice });
+    });
+
+    var selectedSet = {};
+    selectedCodes.forEach(function(c){ selectedSet[c]=true; });
+    var docList = [];
+    var seenDocs = {};
+    HOSO_DB.forEach(function(row){
+      var applies = row.codes.some(function(c){ return selectedSet[c]; });
+      if (!applies) return;
+      if (isCompulsory(isYes ? row.yes : row.no) && !seenDocs[row.doc]){
+        seenDocs[row.doc] = true;
+        docList.push(row.doc);
+      }
+    });
+
+    return { procList:procList, docList:docList, perEvent:perEvent };
+  }
+
+  /* ============ DOM refs ============ */
+
+  var form = document.getElementById('checkForm');
+  var abvGroup = document.getElementById('abvGroup');
+  var abvError = document.getElementById('abvError');
+  var eventGrid = document.getElementById('eventGrid');
+  var selectedCountEl = document.getElementById('selectedCount');
+  var selectAllBtn = document.getElementById('selectAll');
+  var selectNoneBtn = document.getElementById('selectNone');
+  var resetBtn = document.getElementById('resetBtn');
+  var printBtn = document.getElementById('printBtn');
+  var editLink = document.getElementById('editLink');
+  var resultsPanel = document.getElementById('resultsPanel');
+  var resultsMeta = document.getElementById('resultsMeta');
+  var thuTucListEl = document.getElementById('thuTucList');
+  var hosoListEl = document.getElementById('hosoList');
+  var checklistProgress = document.getElementById('checklistProgress');
+  var breakdownDetails = document.getElementById('breakdownDetails');
+  var breakdownContent = document.getElementById('breakdownContent');
+  var invoiceDetails = document.getElementById('invoiceDetails');
+  var invoiceContent = document.getElementById('invoiceContent');
+
+  /* ============ render: static form controls ============ */
+
+  abvGroup.innerHTML =
+    '<label class="choice-card" data-abv="YES">' +
+      '<input type="radio" name="abv" value="YES">' +
+      '<span class="choice-mark choice-mark--radio"></span>' +
+      '<span class="choice-text"><strong>Rượu (mọi nồng độ) hoặc Bia ≥ 15 độ cồn, thuốc lá, sữa thay thế sữa mẹ, thuốc kê đơn (không bán cho đơn vị kinh doanh thuốc), dịch vụ y tế/giáo dục của cơ sở công lập, hàng hóa cấm lưu hành tại Việt Nam</strong><small>Nhóm hàng hóa, dịch vụ hạn chế/cấm khuyến mại theo quy định</small></span>' +
+    '</label>' +
+    '<label class="choice-card" data-abv="NO">' +
+      '<input type="radio" name="abv" value="NO">' +
+      '<span class="choice-mark choice-mark--radio"></span>' +
+      '<span class="choice-text"><strong>Hàng hóa, dịch vụ khác</strong><small>Không thuộc nhóm hạn chế nêu trên</small></span>' +
+    '</label>';
+
+  eventGrid.innerHTML = EVENTS.map(function(e){
+    return '<label class="choice-card" data-event="' + e.id + '">' +
+      '<input type="checkbox" id="chk-' + e.id + '" value="' + e.code + '">' +
+      '<span class="choice-mark choice-mark--check"></span>' +
+      '<span class="choice-text"><strong>' + escapeHtml(e.name) + '</strong></span>' +
+    '</label>';
+  }).join('');
+
+  /* ============ form interactivity ============ */
+
+  function updateSelectedCount(){
+    var n = eventGrid.querySelectorAll('input[type=checkbox]:checked').length;
+    selectedCountEl.textContent = 'Đã chọn ' + n + '/' + EVENTS.length + ' hình thức';
+  }
+
+  form.addEventListener('change', function(e){
+    if (e.target.name === 'abv'){
+      abvGroup.querySelectorAll('.choice-card').forEach(function(c){
+        c.classList.toggle('is-checked', c.querySelector('input').checked);
+      });
+      abvError.hidden = true;
+    } else if (e.target.type === 'checkbox' && e.target.closest('#eventGrid')){
+      e.target.closest('.choice-card').classList.toggle('is-checked', e.target.checked);
+      updateSelectedCount();
+    }
+  });
+
+  selectAllBtn.addEventListener('click', function(){
+    eventGrid.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+      cb.checked = true; cb.closest('.choice-card').classList.add('is-checked');
+    });
+    updateSelectedCount();
+  });
+  selectNoneBtn.addEventListener('click', function(){
+    eventGrid.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+      cb.checked = false; cb.closest('.choice-card').classList.remove('is-checked');
+    });
+    updateSelectedCount();
+  });
+
+  resetBtn.addEventListener('click', function(){
+    form.reset();
+    form.querySelectorAll('.choice-card').forEach(function(c){ c.classList.remove('is-checked'); });
+    updateSelectedCount();
+    abvError.hidden = true;
+    resultsPanel.hidden = true;
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  editLink.addEventListener('click', function(){
+    form.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  printBtn.addEventListener('click', function(){ window.print(); });
+  window.addEventListener('beforeprint', function(){
+    breakdownDetails.open = true;
+    invoiceDetails.open = true;
+  });
+
+  /* ============ render: results ============ */
+
+  function updateChecklistProgress(){
+    var items = hosoListEl.querySelectorAll('input[type=checkbox]');
+    if (!items.length){ checklistProgress.textContent=''; return; }
+    var done = hosoListEl.querySelectorAll('input[type=checkbox]:checked').length;
+    checklistProgress.textContent = 'Đã chuẩn bị ' + done + '/' + items.length + ' chứng từ';
+  }
+
+  function renderResults(result, isYes, selectedCodes){
+    var abvLabel = isYes ? 'Nhóm hàng hóa, dịch vụ hạn chế khuyến mại' : 'Hàng hóa, dịch vụ khác';
+    var names = selectedCodes.map(nameOf);
+    resultsMeta.textContent = names.length
+      ? abvLabel + ' · ' + names.length + ' hình thức đã chọn: ' + names.join(', ')
+      : abvLabel + ' · Chưa chọn hình thức CTKM nào — chọn ít nhất một hình thức để xem thủ tục và chứng từ.';
+
+    thuTucListEl.innerHTML = result.procList.length
+      ? result.procList.map(function(t){ return '<li>' + nl2br(t) + '</li>'; }).join('')
+      : '<li class="empty">Chưa có thủ tục nào được ghi nhận cho lựa chọn hiện tại.</li>';
+
+    hosoListEl.innerHTML = result.docList.length
+      ? result.docList.map(function(d,i){
+          return '<li class="doc-item"><label>' +
+            '<input type="checkbox" data-doc-idx="' + i + '">' +
+            '<span class="doc-check"></span>' +
+            '<span class="doc-text">' + escapeHtml(d) + '</span>' +
+          '</label></li>';
+        }).join('')
+      : '<li class="empty">Không có chứng từ bắt buộc nào cho lựa chọn hiện tại.</li>';
+
+    hosoListEl.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+      cb.addEventListener('change', function(){
+        cb.closest('.doc-item').classList.toggle('is-done', cb.checked);
+        updateChecklistProgress();
+      });
+    });
+    updateChecklistProgress();
+
+    breakdownContent.innerHTML = result.perEvent.map(function(pe){
+      var docsHtml = pe.docs.length
+        ? '<ul class="breakdown-docs">' + pe.docs.map(function(d){ return '<li>'+escapeHtml(d)+'</li>'; }).join('') + '</ul>'
+        : '<p class="breakdown-none">Không có chứng từ bắt buộc riêng cho hình thức này.</p>';
+      return '<div class="breakdown-item">' +
+        '<div class="breakdown-title">' + escapeHtml(pe.name) + '</div>' +
+        '<p class="breakdown-label">Thủ tục áp dụng</p>' +
+        '<p class="breakdown-proc">' + (pe.proc ? nl2br(pe.proc) : '—') + '</p>' +
+        '<p class="breakdown-label">Chứng từ bắt buộc</p>' + docsHtml +
+      '</div>';
+    }).join('') || '<p class="breakdown-none">Chưa chọn hình thức CTKM nào.</p>';
+
+    invoiceContent.innerHTML = result.perEvent.map(function(pe){
+      return '<div class="breakdown-item">' +
+        '<div class="breakdown-title">' + escapeHtml(pe.name) + '</div>' +
+        '<div class="invoice-guide">' + renderInvoiceFields(pe.invoice) + '</div>' +
+      '</div>';
+    }).join('') || '<p class="breakdown-none">Chưa chọn hình thức CTKM nào.</p>';
+
+    resultsPanel.hidden = false;
+    resultsPanel.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var abvInput = form.querySelector('input[name="abv"]:checked');
+    if (!abvInput){
+      abvError.hidden = false;
+      abvGroup.classList.remove('shake'); void abvGroup.offsetWidth; abvGroup.classList.add('shake');
+      abvGroup.scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+    abvError.hidden = true;
+    var isYes = abvInput.value === 'YES';
+    var selectedCodes = EVENTS.filter(function(e){
+      return document.getElementById('chk-'+e.id).checked;
+    }).map(function(e){ return e.code; });
+
+    var result = compute(isYes, selectedCodes);
+    renderResults(result, isYes, selectedCodes);
+  });
+
+  updateSelectedCount();
+
+})();
+</script>
+</body>
+</html>
